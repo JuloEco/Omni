@@ -65,7 +65,7 @@ SERVICES = [
     {
         "name": "LearnCode",
         "category": "education",
-        "url": "https://juloeco-learncode.hf.space",
+        "url": "https://learncode-n2qy.onrender.com",
         "description": "Plateforme interactive d'apprentissage de la programmation.",
         "icon": "💻",
         "supports_qr": False

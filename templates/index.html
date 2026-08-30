@@ -1,476 +1,1120 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config.brand_name }} — {{ config.hub_name }}</title>
+    <title>Opsiom — Animation Studio & Réponse IA en Streaming</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        opsiom: {
+                            cyan: '#06b6d4',
+                            purple: '#a855f7',
+                            pink: '#ec4899',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            dark: '#05070d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --bg-dark: #0b0d12;
-            --card-bg: #131722;
-            --card-border: #232a3b;
-            --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.25);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --status-online: #10b981;
-            --status-waking: #f59e0b;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #05070d;
+            color: #f3f4f6;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
             overflow-x: hidden;
         }
 
-        /* --- ANIMATION INTRO STYLÉE --- */
-        #intro-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #07080b;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: opacity 0.8s ease, visibility 0.8s;
+        .glass-panel {
+            background: rgba(13, 18, 30, 0.78);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
         }
 
-        .shapes-container {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            margin-bottom: 2rem;
+        .glass-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .geo-shape {
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .glass-button.active {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(168, 85, 247, 0.3));
+            border-color: rgba(16, 185, 129, 0.7);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Ambient background lighting glow */
+        .ambient-glow {
             position: absolute;
             border-radius: 50%;
-            border: 2px solid var(--accent);
-            animation: spin 3s infinite linear;
+            filter: blur(120px);
+            opacity: 0.45;
+            pointer-events: none;
+            transition: all 0.5s ease;
         }
 
-        .shape-1 {
-            width: 100%; height: 100%;
-            border-top-color: transparent;
-            box-shadow: 0 0 20px var(--accent-glow);
+        /* Custom range slider */
+        input[type="range"] {
+            accent-color: #10b981;
         }
 
-        .shape-2 {
-            top: 15px; left: 15px; width: 90px; height: 90px;
-            border-bottom-color: transparent;
-            border-color: #a5b4fc transparent #a5b4fc transparent;
-            animation-direction: reverse;
-            animation-duration: 2s;
+        .logo-viewport {
+            perspective: 1200px;
+            transform-style: preserve-3d;
         }
 
-        .shape-3 {
-            top: 35px; left: 35px; width: 50px; height: 50px;
-            background: var(--accent);
-            border-radius: 8px;
-            transform: rotate(45deg);
-            animation: pulse 1.5s infinite alternate ease-in-out;
+        .logo-card {
+            transform-style: preserve-3d;
+            will-change: transform;
         }
 
-        .intro-text {
-            font-size: 1.2rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            opacity: 0;
-            animation: fadeIn 1s 0.3s forwards;
-        }
-
-        .intro-brand {
-            font-size: 2.8rem;
-            font-weight: 900;
-            letter-spacing: 6px;
-            background: linear-gradient(135deg, #ffffff 0%, #818cf8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0;
-            animation: fadeIn 1s 0.8s forwards;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { transform: rotate(45deg) scale(0.8); } 100% { transform: rotate(225deg) scale(1.1); } }
-        @keyframes fadeIn { to { opacity: 1; } }
-
-        /* --- LAYOUT OPTIMISÉ POUR ORDI (DESKTOP) --- */
-        .container {
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        header {
-            padding: 2.5rem 0;
-            border-bottom: 1px solid var(--card-border);
-            background: rgba(19, 23, 34, 0.4);
-            backdrop-filter: blur(12px);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-
-        .brand h1 {
-            font-size: 2.2rem;
-            letter-spacing: 3px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .brand p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-top: 4px;
-        }
-
-        nav {
-            display: flex;
-            gap: 12px;
-            background: var(--card-bg);
-            padding: 6px;
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-        }
-
-        .filter-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-
-        .filter-btn:hover, .filter-btn.active {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 4px 12px var(--accent-glow);
-        }
-
-        main {
-            padding: 3rem 0;
-            flex: 1;
-        }
-
-        /* Grille adaptable grand écran */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 2rem;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 1.8rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card:hover {
-            transform: translateY(-6px);
-            border-color: var(--accent);
-            box-shadow: 0 12px 24px -10px var(--accent-glow);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.2rem;
-        }
-
-        .icon {
-            font-size: 2.4rem;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 12px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .status-badge {
-            font-size: 0.8rem;
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-        }
-
-        .status-dot {
-            width: 8px; height: 8px;
+        /* Concentric Energy Wave Ripples */
+        .ripple-ring {
+            position: absolute;
             border-radius: 50%;
-            background: var(--status-waking);
-            box-shadow: 0 0 8px var(--status-waking);
+            border: 2px solid rgba(16, 185, 129, 0.6);
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.3s ease;
         }
 
-        .status-badge.online .status-dot {
-            background: var(--status-online);
-            box-shadow: 0 0 8px var(--status-online);
-        }
-        .status-badge.online { color: var(--status-online); }
-
-        .card-title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            margin-bottom: 0.6rem;
-            color: #fff;
+        .ripple-active {
+            animation: rippleExpand 2.2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
         }
 
-        .card-desc {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 2rem;
+        .ripple-ring:nth-child(2) { animation-delay: 0.7s; }
+        .ripple-ring:nth-child(3) { animation-delay: 1.4s; }
+
+        @keyframes rippleExpand {
+            0% {
+                transform: scale(0.75);
+                opacity: 0.9;
+                border-color: rgba(6, 182, 212, 0.8);
+            }
+            50% {
+                border-color: rgba(168, 85, 247, 0.6);
+            }
+            100% {
+                transform: scale(1.6);
+                opacity: 0;
+                border-color: rgba(236, 72, 153, 0);
+            }
         }
 
-        .card-actions {
-            display: flex;
-            gap: 12px;
+        /* Waveform equalizer bars */
+        .wave-bar {
+            width: 3px;
+            height: 12px;
+            background-color: #10b981;
+            border-radius: 2px;
+            animation: waveBounce 1.2s infinite ease-in-out;
         }
 
-        .btn {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .wave-bar:nth-child(1) { animation-delay: 0.0s; }
+        .wave-bar:nth-child(2) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.4s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.6s; }
+
+        @keyframes waveBounce {
+            0%, 100% { height: 6px; background-color: #10b981; }
+            50% { height: 20px; background-color: #a855f7; }
         }
 
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 4px 14px var(--accent-glow);
+        /* Elegant word streaming entrance animation */
+        .word-token {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(6px) scale(0.96);
+            animation: wordAppear 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            background: linear-gradient(120deg, #ffffff 0%, #e2e8f0 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .btn-primary:hover {
-            background: #4f46e5;
-            transform: scale(1.02);
+        @keyframes wordAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-main);
-            border: 1px solid var(--card-border);
-            width: 48px;
-            flex: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.2rem;
+        /* Glowing blinking terminal cursor */
+        .ai-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: cursorBlink 0.8s infinite;
+            border-radius: 2px;
         }
 
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.15; }
         }
 
-        /* Modale QR Code */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(6px);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
+        /* Smooth video sliding & compact thinking effect */
+        .video-container-sliding {
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .modal-content {
-            background: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: 20px;
-            text-align: center;
-            border: 1px solid var(--card-border);
-            max-width: 360px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        .video-thinking-glow {
+            border-color: rgba(16, 185, 129, 0.6) !important;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.25), inset 0 0 15px rgba(6, 182, 212, 0.15);
         }
 
-        .modal-content img {
-            margin: 1.5rem auto;
-            border-radius: 12px;
-            padding: 10px;
-            background: white;
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.4); border-radius: 3px; }
+        </style>
+                <div id="response-master-container" class="glass-panel p-6 rounded-3xl space-y-6 min-h-[380px] flex flex-col justify-between border border-slate-800 relative overflow-hidden">
+                    
+                    <!-- Prompt Echo Header -->
+                    <div class="flex items-start justify-between gap-3 border-b border-slate-800/80 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xs text-emerald-400">
+                                <i class="fa-solid fa-user"></i>
+                            </span>
+                            <span id="prompt-echo-text" class="text-xs font-semibold text-slate-300 italic truncate max-w-md">
+                                Prompt : Raconte une histoire captivante...
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <button onclick="copyGeneratedText()" class="glass-button px-2.5 py-1 rounded-lg text-slate-400 hover:text-emerald-400 text-xs" title="Copier le texte">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button onclick="stopGeneration()" id="stop-btn" class="hidden glass-button px-2.5 py-1 rounded-lg text-rose-400 hover:bg-rose-500/20 text-xs flex items-center gap-1">
+                                <i class="fa-solid fa-stop"></i>
+                                <span>Stopper</span>
+                            </button>
+                        </div>
+                    </div>
 
-        .close-btn {
-            margin-top: 1rem;
-            background: transparent;
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-</head>
-<body>
+                    <!-- Text Generation Box (Elegantly types word by word) -->
+                    <div id="streaming-text-box" class="text-sm sm:text-base leading-relaxed text-slate-200 font-sans tracking-wide min-h-[100px] max-h-[320px] overflow-y-auto pr-2 space-y-2">
+                        <span id="word-stream-target"></span>
+                        <span id="ai-cursor" class="ai-cursor"></span>
+                    </div>
 
-    <!-- Intro Épurée & Géométrique -->
-    <div id="intro-overlay" onclick="dismissIntro()">
-        <div class="shapes-container">
-            <div class="geo-shape shape-1"></div>
-            <div class="geo-shape shape-2"></div>
-            <div class="geo-shape shape-3"></div>
-        </div>
-        <div class="intro-text">{{ config.brand_name }} présente</div>
-        <div class="intro-brand">{{ config.hub_name }}</div>
-    </div>
+                    <!-- DOWNWARD SLIDING MP4 VIDEO PLAYER CONTAINER (COMPACT THINKING FORMAT) -->
+                    <div id="video-sliding-wrapper" class="video-container-sliding pt-3 border-t border-slate-800/80 space-y-2">
+                        
+                        <!-- Thinking Mode Banner Indicator -->
+                        <div id="thinking-banner" class="hidden flex items-center justify-between px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-indigo-500/15 border border-emerald-500/40 text-xs font-mono text-emerald-300 animate-pulse transition-all">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-brain text-emerald-400 animate-bounce"></i>
+                                <span class="font-bold tracking-wide">Réflexion & Synthèse du modèle en cours...</span>
+                            </span>
+                            <span class="text-[10px] text-cyan-300 bg-cyan-950/60 px-2 py-0.5 rounded-md border border-cyan-500/30">
+                                Petit Format Actif
+                            </span>
+                        </div>
 
-    <!-- Interface Principale -->
-    <header>
-        <div class="container header-content">
-            <div class="brand">
-                <h1>{{ config.brand_name }} <span style="color:var(--accent)">/</span> {{ config.hub_name }}</h1>
-                <p>{{ config.tagline }}</p>
+                        <div class="flex items-center justify-between text-xs text-slate-400 px-1">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-film text-indigo-400"></i>
+                                <span class="font-semibold text-slate-300 uppercase tracking-wider text-[11px]">Flux Vidéo Synchronisé</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="video-file-upload" class="cursor-pointer text-[10px] font-mono text-cyan-400 hover:text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 px-2 py-0.5 rounded-full border border-cyan-500/20 transition flex items-center gap-1" title="Changer de fichier vidéo">
+                                    <i class="fa-solid fa-folder-open text-[9px]"></i> Parcourir
+                                    <input id="video-file-upload" type="file" accept="video/mp4,video/*" class="hidden" onchange="loadCustomVideoFile(event)">
+                                </label>
+                                <span id="thinking-badge" class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                    Auto-défilement
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Compact Embedded MP4 Video Container -->
+                        <div id="video-card" class="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800/80 group shadow-2xl transition-all duration-500">
+                            <!-- Video Element with dynamic height -->
+                            <video id="ai-mp4-video" class="w-full h-24 sm:h-28 object-cover opacity-90 group-hover:opacity-100 transition-all duration-500" autoplay loop muted playsinline onerror="handleVideoError()">
+                                <source id="video-src-1" src="Opsiom_vidéo.mp4" type="video/mp4">
+                                <source id="video-src-2" src="Opsiom_video.mp4" type="video/mp4">
+                                <source id="video-src-3" src="https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-screens-41438-large.mp4" type="video/mp4">
+                                Votre navigateur ne supporte pas la lecture vidéo MP4.
+                            </video>
+
+                            <!-- Subtle Glowing Gradient Overlay -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent pointer-events-none"></div>
+
+                            <!-- Video Player Mini Control Overlay -->
+                            <div class="absolute bottom-2 left-3 right-3 flex items-center justify-between z-10 text-xs">
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="toggleVideoPlay()" id="vid-play-btn" class="w-6 h-6 rounded-full bg-slate-900/80 text-emerald-400 flex items-center justify-center hover:bg-emerald-500 hover:text-slate-950 transition text-[10px]">
+                                        <i class="fa-solid fa-pause"></i>
+                                    </button>
+                                    <button onclick="toggleVideoMute()" id="vid-mute-btn" class="w-6 h-6 rounded-full bg-slate-900/80 text-slate-300 flex items-center justify-center hover:bg-slate-800 transition text-[10px]">
+                                        <i class="fa-solid fa-volume-xmark"></i>
+                                    </button>
+                                </div>
+
+                                <span id="video-filename-label" class="text-[10px] font-mono text-slate-300 bg-slate-900/80 px-2 py-0.5 rounded-lg backdrop-blur-md border border-slate-700/50 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-file-video text-emerald-400"></i>
+                                    <span>Opsiom_vidéo.mp4</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-            <nav>
-                <button class="filter-btn active" onclick="filterCategory('all')">Tous</button>
-                <button class="filter-btn" onclick="filterCategory('jeux')">Jeux</button>
-                <button class="filter-btn" onclick="filterCategory('education')">Éducation</button>
-                <button class="filter-btn" onclick="filterCategory('outils')">Utilitaires</button>
-            </nav>
+            <div>
+                <h1 class="font-display font-bold text-xl tracking-tight text-white flex items-center gap-2">
+                    OPSIOM <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">Neural Studio</span>
+                </h1>
+                <p class="text-xs text-slate-400">Génération de réponse IA & Moteur vidéo synchronisé</p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Mode switch: Local Demo / Python PyTorch Server -->
+            <button id="server-toggle-btn" onclick="toggleServerConnection()" class="glass-button px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 flex items-center space-x-2">
+                <span id="server-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span id="server-status-text">Mode Démo SSE</span>
+            </button>
+
+            <!-- AI Response Simulation Toggle -->
+            <button id="ai-mode-btn" onclick="toggleAIMode()" class="glass-button px-4 py-2 rounded-xl text-xs font-bold text-emerald-400 flex items-center space-x-2 active">
+                <i class="fa-solid fa-sparkles text-amber-300 animate-spin" style="animation-duration: 4s;"></i>
+                <span id="ai-btn-text">IA Active</span>
+            </button>
+
+            <!-- Upload custom logo button -->
+            <label for="image-upload" class="glass-button px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 flex items-center space-x-2 cursor-pointer" title="Uploader un logo custom">
+                <i class="fa-solid fa-upload text-emerald-400"></i>
+                <span class="hidden sm:inline">Logo Custom</span>
+                <input id="image-upload" type="file" accept="image/*" class="hidden" onchange="loadCustomImage(event)">
+            </label>
+
+            <!-- Fullscreen button -->
+            <button onclick="toggleFullscreen()" class="glass-button px-3 py-2 rounded-xl text-xs font-semibold text-slate-300">
+                <i class="fa-solid fa-expand"></i>
+            </button>
         </div>
     </header>
 
-    <main class="container">
-        <div class="grid">
-            {% for item in services %}
-            <div class="card" data-category="{{ item.category }}">
-                <div>
-                    <div class="card-header">
-                        <div class="icon">{{ item.icon }}</div>
-                        <div class="status-badge" id="status-{{ loop.index }}">
-                            <div class="status-dot"></div>
-                            <span class="status-text">Réveil en cours...</span>
-                        </div>
-                    </div>
-                    <div class="card-title">{{ item.name }}</div>
-                    <div class="card-desc">{{ item.description }}</div>
+    <!-- Main Content Container: Grid layout -->
+    <main class="relative z-10 max-w-7xl mx-auto w-full px-4 py-2 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-grow">
+
+        <!-- LEFT COLUMN: Opsiom Logo & Particle Engine Viewport (5 Columns on Desktop) -->
+        <section class="lg:col-span-5 flex flex-col items-center justify-center p-4">
+            
+            <!-- Status Badge for AI Generation State -->
+            <div id="ai-status-badge" class="mb-6 px-4 py-2 rounded-full glass-panel flex items-center space-x-3 border border-emerald-500/30 shadow-lg transition-all duration-500">
+                <div class="flex items-center space-x-1 h-5">
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
                 </div>
-                <div class="card-actions">
-                    <a href="{{ item.url }}" target="_blank" class="btn btn-primary">Lancer / Ouvrir</a>
-                    {% if item.supports_qr %}
-                    <button class="btn btn-secondary" onclick="showQR('{{ item.url }}', '{{ item.name }}')" title="Rejoindre sur Mobile">📲</button>
-                    {% endif %}
+                <span id="ai-status-text" class="text-xs font-mono font-semibold text-emerald-300 tracking-wide">
+                    Modulation IA active <span id="token-counter" class="text-slate-400 font-normal">(142 tokens/s)</span>
+                </span>
+            </div>
+
+            <div id="logo-card" class="logo-card relative flex items-center justify-center transition-transform duration-200 ease-out cursor-grab active:cursor-grabbing my-6">
+                
+                <!-- Concentric AI Wave Ripples -->
+                <div class="ripple-ring ripple-active w-[280px] h-[280px] sm:w-[360px] sm:h-[360px]"></div>
+                <div class="ripple-ring ripple-active w-[280px] h-[280px] sm:w-[360px] sm:h-[360px]"></div>
+                <div class="ripple-ring ripple-active w-[280px] h-[280px] sm:w-[360px] sm:h-[360px]"></div>
+
+                <!-- Outer Glow Ring -->
+                <div id="logo-ring" class="absolute w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] rounded-full border border-emerald-500/30 shadow-[0_0_80px_rgba(16,185,129,0.25)] transition-all duration-700 pointer-events-none"></div>
+                
+                <!-- Secondary Orbit Line -->
+                <div class="absolute w-[340px] h-[340px] sm:w-[440px] sm:h-[440px] rounded-full border border-dashed border-cyan-500/30 pointer-events-none"></div>
+
+                <!-- The Logo Container -->
+                <div id="logo-spinner" class="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center">
+                    <img id="logo-image" src="" alt="Opsiom Logo" class="w-full h-full object-contain filter drop-shadow-[0_10px_25px_rgba(0,0,0,0.6)] hidden">
+                    
+                    <!-- Vector SVG Logo -->
+                    <svg id="logo-svg" class="w-full h-full" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop id="stop1-1" offset="0%" stop-color="#10b981" />
+                                <stop id="stop1-2" offset="50%" stop-color="#06b6d4" />
+                                <stop id="stop1-3" offset="100%" stop-color="#a855f7" />
+                            </linearGradient>
+                            <linearGradient id="grad2" x1="0%" y1="100%" x2="100%" y2="0%">
+                                <stop id="stop2-1" offset="0%" stop-color="#a855f7" />
+                                <stop id="stop2-2" offset="50%" stop-color="#ec4899" />
+                                <stop id="stop2-3" offset="100%" stop-color="#3b82f6" />
+                            </linearGradient>
+                            <linearGradient id="grad3" x1="50%" y1="0%" x2="50%" y2="100%">
+                                <stop id="stop3-1" offset="0%" stop-color="#ec4899" />
+                                <stop id="stop3-2" offset="100%" stop-color="#10b981" />
+                            </linearGradient>
+                            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000000" flood-opacity="0.6" />
+                            </filter>
+                        </defs>
+
+                        <g filter="url(#shadow)">
+                            <path id="petal-1" d="M250 80 C340 80 420 160 420 250 C420 340 340 420 250 420 C160 420 80 340 80 250 C80 160 160 80 250 80 Z" fill="none" stroke="url(#grad1)" stroke-width="26" stroke-linecap="round"/>
+                            <path id="petal-2" d="M250 110 C320 110 390 180 390 250 C390 320 320 390 250 390 C180 390 110 320 110 250 C110 180 180 110 250 110 Z" fill="none" stroke="url(#grad2)" stroke-width="22" stroke-linecap="round" transform="rotate(30 250 250)"/>
+                            <path id="petal-3" d="M250 140 C300 140 360 200 360 250 C360 300 300 360 250 360 C200 360 140 300 140 250 C140 200 200 140 250 140 Z" fill="none" stroke="url(#grad3)" stroke-width="18" stroke-linecap="round" transform="rotate(60 250 250)"/>
+                            <path id="spiral-core" d="M250 250 M250 250 A10 10 0 0 1 250 260 A20 20 0 0 1 230 250 A30 30 0 0 1 250 220 A40 40 0 0 1 290 250 A50 50 0 0 1 250 300 A60 60 0 0 1 190 250 A70 70 0 0 1 250 180 A80 80 0 0 1 330 250" fill="none" stroke="url(#grad1)" stroke-width="10" stroke-linecap="round"/>
+                        </g>
+                    </svg>
                 </div>
             </div>
-            {% endfor %}
-        </div>
+
+            <!-- Mini Controls for Logo Physics -->
+            <div class="w-full glass-panel p-4 rounded-2xl space-y-3 mt-2">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-300">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-sliders text-emerald-400"></i> Contrôles Moteur</span>
+                    <button onclick="triggerEnergyPulse()" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 text-[11px] border border-emerald-500/30 transition">
+                        <i class="fa-solid fa-bolt mr-1"></i> Impulsion
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                            <span>Respiration</span>
+                            <span id="breath-val" class="font-mono text-emerald-400">1.0x</span>
+                        </div>
+                        <input id="breath-slider" type="range" min="0.2" max="3.0" value="1.0" step="0.1" oninput="onBreathSpeedChange(this.value)" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                            <span>Halo Quantique</span>
+                            <span id="glow-val" class="font-mono text-indigo-400">90%</span>
+                        </div>
+                        <input id="glow-slider" type="range" min="0" max="100" value="90" oninput="onGlowChange(this.value)" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: AI Response Terminal & Downward Sliding Video Player (7 Columns on Desktop) -->
+        <section class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <!-- Terminal Header & Input Card -->
+            <div class="glass-panel p-5 rounded-3xl space-y-4 border border-slate-800">
+                <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Terminal d'Inférence IA</span>
+                    </div>
+                    <span id="generation-stats" class="text-[11px] font-mono text-slate-400">Prêt</span>
+                </div>
+
+                <!-- Quick Prompt Pills -->
+                <div class="flex flex-wrap gap-2 text-xs">
+                    <button onclick="setPromptAndRun('Raconte-moi une histoire fascinante sur la cité céleste d\'Aethelgard.')" class="glass-button px-3 py-1.5 rounded-xl text-slate-300 hover:text-emerald-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-bookmark text-emerald-400 text-xs"></i> Histoire
+                    </button>
+                    <button onclick="setPromptAndRun('Explique en détail le fonctionnement du Transformer avec RoPE et KV-Cache.')" class="glass-button px-3 py-1.5 rounded-xl text-slate-300 hover:text-cyan-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-microchip text-cyan-400 text-xs"></i> Architecture IA
+                    </button>
+                    <button onclick="setPromptAndRun('Comment s\'articule le logo Opsiom avec la réponse en temps réel ?')" class="glass-button px-3 py-1.5 rounded-xl text-slate-300 hover:text-purple-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-atom text-purple-400 text-xs"></i> Synesthesie
+                    </button>
+                </div>
+
+                <!-- Prompt Input Form -->
+                <form onsubmit="handlePromptSubmit(event)" class="relative flex items-center">
+                    <input id="prompt-input" type="text" placeholder="Entrez un prompt pour générer la réponse en direct..." value="Raconte une histoire captivante sur la création du logo Opsiom et l'éveil de l'intelligence artificielle." class="w-full bg-slate-950/80 text-sm text-slate-100 placeholder-slate-500 px-4 py-3.5 pr-28 rounded-2xl border border-slate-800 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/60 transition font-sans">
+                    <button type="submit" id="send-btn" class="absolute right-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition active:scale-95">
+                        <span>Générer</span>
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- STREAMING RESPONSE DISPLAY BOX & DOWNWARD SLIDING VIDEO PLAYER -->
+            <div id="response-master-container" class="glass-panel p-6 rounded-3xl space-y-6 min-h-[380px] flex flex-col justify-between border border-slate-800 relative overflow-hidden">
+                
+                <!-- Prompt Echo Header -->
+                <div class="flex items-start justify-between gap-3 border-b border-slate-800/80 pb-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xs text-emerald-400">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <span id="prompt-echo-text" class="text-xs font-semibold text-slate-300 italic truncate max-w-md">
+                            Prompt : Raconte une histoire captivante...
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <button onclick="copyGeneratedText()" class="glass-button px-2.5 py-1 rounded-lg text-slate-400 hover:text-emerald-400 text-xs" title="Copier le texte">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                        <button onclick="stopGeneration()" id="stop-btn" class="hidden glass-button px-2.5 py-1 rounded-lg text-rose-400 hover:bg-rose-500/20 text-xs flex items-center gap-1">
+                            <i class="fa-solid fa-stop"></i>
+                            <span>Stopper</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Text Generation Box (Elegantly types word by word) -->
+                <div id="streaming-text-box" class="text-sm sm:text-base leading-relaxed text-slate-200 font-sans tracking-wide min-h-[100px] max-h-[320px] overflow-y-auto pr-2 space-y-2">
+                    <span id="word-stream-target"></span>
+                    <span id="ai-cursor" class="ai-cursor"></span>
+                </div>
+
+                <!-- DOWNWARD SLIDING MP4 VIDEO PLAYER CONTAINER -->
+                <!-- As text generates above, this element dynamically shifts down smoothly! -->
+                <div id="video-sliding-wrapper" class="video-container-sliding pt-4 border-t border-slate-800/80 space-y-3">
+                    
+                    <div class="flex items-center justify-between text-xs text-slate-400 px-1">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-film text-indigo-400"></i>
+                            <span class="font-semibold text-slate-300 uppercase tracking-wider text-[11px]">Flux Vidéo Synchronisé</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="video-file-upload" class="cursor-pointer text-[10px] font-mono text-cyan-400 hover:text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 px-2 py-0.5 rounded-full border border-cyan-500/20 transition flex items-center gap-1" title="Changer de fichier vidéo">
+                                <i class="fa-solid fa-folder-open text-[9px]"></i> Parcourir
+                                <input id="video-file-upload" type="file" accept="video/mp4,video/*" class="hidden" onchange="loadCustomVideoFile(event)">
+                            </label>
+                            <span class="text-[10px] font-mono text-emerald-400/80 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                Auto-défilement
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Compact Embedded MP4 Video Container -->
+                    <div class="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800/80 group shadow-2xl">
+                        <!-- Video Element with Local Source Opsiom_vidéo.mp4 and fallback -->
+                        <video id="ai-mp4-video" class="w-full h-36 sm:h-44 object-cover opacity-90 group-hover:opacity-100 transition duration-500" autoplay loop muted playsinline onerror="handleVideoError()">
+                            <source id="video-src-1" src="Opsiom_vidéo.mp4" type="video/mp4">
+                            <source id="video-src-2" src="Opsiom_video.mp4" type="video/mp4">
+                            <source id="video-src-3" src="https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-screens-41438-large.mp4" type="video/mp4">
+                            Votre navigateur ne supporte pas la lecture vidéo MP4.
+                        </video>
+
+                        <!-- Subtle Glowing Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent pointer-events-none"></div>
+
+                        <!-- Video Player Mini Control Overlay -->
+                        <div class="absolute bottom-2 left-3 right-3 flex items-center justify-between z-10 text-xs">
+                            <div class="flex items-center space-x-2">
+                                <button onclick="toggleVideoPlay()" id="vid-play-btn" class="w-7 h-7 rounded-full bg-slate-900/80 text-emerald-400 flex items-center justify-center hover:bg-emerald-500 hover:text-slate-950 transition">
+                                    <i class="fa-solid fa-pause"></i>
+                                </button>
+                                <button onclick="toggleVideoMute()" id="vid-mute-btn" class="w-7 h-7 rounded-full bg-slate-900/80 text-slate-300 flex items-center justify-center hover:bg-slate-800 transition">
+                                    <i class="fa-solid fa-volume-xmark"></i>
+                                </button>
+                            </div>
+
+                            <span id="video-filename-label" class="text-[11px] font-mono text-slate-300 bg-slate-900/80 px-2.5 py-1 rounded-lg backdrop-blur-md border border-slate-700/50 flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-video text-emerald-400"></i>
+                                <span>Opsiom_vidéo.mp4</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
     </main>
 
-    <!-- Modal QR Code -->
-    <div id="qrModal" class="modal">
-        <div class="modal-content">
-            <h3 id="modalTitle" style="color:#fff">Scanner pour jouer</h3>
-            <div id="qrcode"></div>
-            <button class="close-btn" onclick="closeQR()">Fermer</button>
+    <!-- Floating Bottom Control Footer -->
+    <footer class="relative z-20 p-4 max-w-7xl mx-auto w-full my-4">
+        <div class="glass-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 text-xs">
+            <div class="flex items-center space-x-3">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span class="text-slate-300 font-medium">Moteur Opsiom v2.4</span>
+                <span class="text-slate-600">|</span>
+                <span class="text-slate-400">Inférence PyTorch & SSE Word-by-Word</span>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="setEffectPreset('ai_stream')" class="preset-btn glass-button px-3 py-1.5 rounded-xl text-slate-300 hover:text-emerald-400 text-xs active">
+                    <i class="fa-solid fa-wand-magic-sparkles text-emerald-400 mr-1"></i> Mode IA
+                </button>
+                <button onclick="setEffectPreset('vortex')" class="preset-btn glass-button px-3 py-1.5 rounded-xl text-slate-300 hover:text-cyan-400 text-xs">
+                    <i class="fa-solid fa-hurricane text-cyan-400 mr-1"></i> Vortex
+                </button>
+                <button onclick="setEffectPreset('pulse')" class="preset-btn glass-button px-3 py-1.5 rounded-xl text-slate-300 hover:text-pink-400 text-xs">
+                    <i class="fa-solid fa-heart-pulse text-pink-400 mr-1"></i> Pulsation
+                </button>
+            </div>
         </div>
-    </div>
+    </footer>
 
     <script>
-        // --- 1. Masquer l'intro automatiquement après 2.5s ---
-        function dismissIntro() {
-            const overlay = document.getElementById('intro-overlay');
-            if (overlay) {
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.style.visibility = 'hidden', 800);
+        // Core Logic State
+        let currentAngle = 0;
+        let baseRPM = 8;
+        let targetRPM = 8;
+        let breathSpeed = 1.0;
+        let isAIModeActive = true;
+        let is3DTiltEnabled = true;
+        let glowIntensity = 0.9;
+        let energyPulseFactor = 0;
+        let hueShift = 0;
+
+        let targetTiltX = 0, targetTiltY = 0;
+        let currentTiltX = 0, currentTiltY = 0;
+        let lastTime = performance.now();
+        let tokenCount = 142;
+
+        // Streaming state
+        let isGenerating = false;
+        let abortController = null;
+        let isPyTorchServerConnected = false;
+        let fullGeneratedAccumulator = "";
+
+        // Particle System
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const PARTICLE_COUNT = 85;
+
+        window.onload = function() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            tryLoadDefaultImage();
+            initParticles();
+
+            window.addEventListener('mousemove', handleMouseMove);
+            
+            // Initial auto-generation test run
+            startWordStreaming("Raconte une histoire captivante sur la création du logo Opsiom et l'éveil de l'intelligence artificielle.");
+
+            // Start main graphic rendering loop
+            requestAnimationFrame(animateLoop);
+        };
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function tryLoadDefaultImage() {
+            const imgEl = document.getElementById('logo-image');
+            const svgEl = document.getElementById('logo-svg');
+            imgEl.src = 'Opsiom_logo.png';
+            imgEl.onload = function() {
+                imgEl.classList.remove('hidden');
+                svgEl.classList.add('hidden');
+            };
+            imgEl.onerror = function() {
+                imgEl.classList.add('hidden');
+                svgEl.classList.remove('hidden');
+            };
+        }
+
+        function loadCustomImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgEl = document.getElementById('logo-image');
+                    const svgEl = document.getElementById('logo-svg');
+                    imgEl.src = e.target.result;
+                    imgEl.classList.remove('hidden');
+                    svgEl.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
             }
         }
-        setTimeout(dismissIntro, 2500);
 
-        // --- 2. Filtres par catégorie ---
-        function filterCategory(cat) {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        function loadCustomVideoFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const videoEl = document.getElementById('ai-mp4-video');
+                const fileURL = URL.createObjectURL(file);
+                videoEl.src = fileURL;
+                videoEl.play().catch(e => console.log("Lecture vidéo auto bloquée:", e));
+                
+                const label = document.querySelector('#video-filename-label span');
+                if (label) label.innerText = file.name;
+            }
+        }
 
-            document.querySelectorAll('.card').forEach(card => {
-                if (cat === 'all' || card.dataset.category === cat) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
+        function handleVideoError() {
+            console.warn("La vidéo locale Opsiom_vidéo.mp4 n'a pas pu être chargée directement par le navigateur. Basculement sur le flux de démonstration.");
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2.8 + 0.6,
+                    color: ['#10b981', '#a855f7', '#06b6d4', '#ec4899', '#f59e0b'][Math.floor(Math.random() * 5)],
+                    angle: Math.random() * Math.PI * 2,
+                    speed: Math.random() * 0.8 + 0.2,
+                    orbitRadius: Math.random() * 220 + 80,
+                    alpha: Math.random() * 0.7 + 0.3
+                });
+            }
+        }
+
+        function updateAndDrawParticles(now) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            particles.forEach((p, idx) => {
+                let speedFactor = 0.003 * breathSpeed;
+                if (isAIModeActive || isGenerating) {
+                    speedFactor = (0.009 + 0.004 * Math.sin(now * 0.002 + idx)) * breathSpeed;
+                    p.orbitRadius += Math.sin(now * 0.0015 + idx) * 0.5;
                 }
+
+                p.angle += speedFactor;
+                const targetRadius = (isAIModeActive || isGenerating) ? (130 + 80 * Math.sin(now * 0.001 + idx)) : p.orbitRadius;
+                p.orbitRadius += (targetRadius - p.orbitRadius) * 0.02;
+
+                p.x = centerX + Math.cos(p.angle) * p.orbitRadius;
+                p.y = centerY + Math.sin(p.angle) * p.orbitRadius;
+
+                const pulseAlpha = p.alpha * (0.5 + 0.5 * Math.sin(now * 0.004 + idx));
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius * (isGenerating ? 1.4 : 1.0), 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = pulseAlpha * glowIntensity;
+                ctx.shadowBlur = isGenerating ? 16 : 8;
+                ctx.shadowColor = p.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
             });
         }
 
-        // --- 3. Script Ping / Keep-Alive (Réveille Render & HF) ---
-        const services = {{ services | tojson }};
-        
-        function pingServices() {
-            services.forEach((service, index) => {
-                const badge = document.getElementById(`status-${index + 1}`);
-                if (!badge) return;
-                const text = badge.querySelector('.status-text');
+        function animateLoop(now) {
+            const dt = (now - lastTime) / 1000;
+            lastTime = now;
 
-                // Utilisation de fetch mode 'no-cors' pour envoyer une requête HTTP
-                // qui sort l'instance de veille sur Render & Hugging Face Spaces
-                fetch(service.url, { mode: 'no-cors', cache: 'no-cache' })
-                    .then(() => {
-                        badge.classList.add('online');
-                        text.innerText = 'En ligne';
-                    })
-                    .catch(() => {
-                        text.innerText = 'Hors ligne';
-                    });
-            });
+            currentAngle += (targetRPM * 6) * dt;
+            currentAngle %= 360;
+
+            let scale = 1.0;
+            let extraTiltX = 0;
+            let extraTiltY = 0;
+
+            if (isAIModeActive || isGenerating) {
+                const primaryWave = Math.sin(now * 0.0025 * breathSpeed) * (isGenerating ? 0.09 : 0.05);
+                const secondaryWave = Math.cos(now * 0.0051 * breathSpeed) * 0.03;
+                
+                scale = 1.0 + primaryWave + secondaryWave + energyPulseFactor;
+
+                extraTiltX = Math.sin(now * 0.003) * 6;
+                extraTiltY = Math.cos(now * 0.002) * 6;
+
+                hueShift = (now * 0.04 * breathSpeed) % 360;
+                applyGradientHueShift(hueShift);
+
+                if (Math.random() < 0.1) {
+                    tokenCount = Math.floor(135 + Math.random() * 25);
+                    const tokenEl = document.getElementById('token-counter');
+                    if (tokenEl) tokenEl.innerText = `(${tokenCount} tokens/s)`;
+                }
+            } else {
+                scale = 1.0 + energyPulseFactor;
+            }
+
+            energyPulseFactor *= 0.92;
+
+            const logoSpinner = document.getElementById('logo-spinner');
+            if (logoSpinner) {
+                logoSpinner.style.transform = `rotate(${currentAngle}deg) scale(${scale})`;
+            }
+
+            if (is3DTiltEnabled) {
+                currentTiltX += (targetTiltX + extraTiltX - currentTiltX) * 0.08;
+                currentTiltY += (targetTiltY + extraTiltY - currentTiltY) * 0.08;
+            } else {
+                currentTiltX += (0 - currentTiltX) * 0.08;
+                currentTiltY += (0 - currentTiltY) * 0.08;
+            }
+
+            const logoCard = document.getElementById('logo-card');
+            if (logoCard) {
+                logoCard.style.transform = `rotateX(${currentTiltX}deg) rotateY(${currentTiltY}deg)`;
+            }
+
+            const glow1 = document.getElementById('glow-1');
+            const glow2 = document.getElementById('glow-2');
+            const ring = document.getElementById('logo-ring');
+
+            if (glow1 && glow2 && ring) {
+                const auraScale = isGenerating ? (1.1 + Math.sin(now * 0.004) * 0.2) : 1.0;
+                glow1.style.transform = `translate(-50%, -50%) scale(${auraScale})`;
+                glow1.style.opacity = (isGenerating ? 0.75 : 0.4) * glowIntensity;
+                glow2.style.opacity = (isGenerating ? 0.6 : 0.25) * glowIntensity;
+
+                const ringGlowRadius = isGenerating ? 100 + Math.sin(now * 0.005) * 35 : 40;
+                ring.style.boxShadow = `0 0 ${ringGlowRadius}px rgba(16,185,129,${(0.3 + energyPulseFactor) * glowIntensity})`;
+            }
+
+            updateAndDrawParticles(now);
+
+            requestAnimationFrame(animateLoop);
         }
 
-        // Exécution au chargement...
-        pingServices();
-        // ...et ping automatique toutes les 10 minutes pour éviter le retour en veille !
-        setInterval(pingServices, 10 * 60 * 1000);
-
-        // --- 4. Gestion QR Code ---
-        let qrContainer = new QRCode(document.getElementById("qrcode"), { width: 200, height: 200 });
-
-        function showQR(url, title) {
-            document.getElementById("modalTitle").innerText = title;
-            qrContainer.clear();
-            qrContainer.makeCode(url);
-            document.getElementById("qrModal").style.display = "flex";
+        function applyGradientHueShift(deg) {
+            const svg = document.getElementById('logo-svg');
+            if (svg) {
+                svg.style.filter = `hue-rotate(${deg}deg) drop-shadow(0 10px 25px rgba(0,0,0,0.6))`;
+            }
         }
 
-        function closeQR() {
-            document.getElementById("qrModal").style.display = "none";
+        function handleMouseMove(e) {
+            const { innerWidth, innerHeight } = window;
+            const normX = (e.clientX / innerWidth) * 2 - 1;
+            const normY = (e.clientY / innerHeight) * 2 - 1;
+
+            targetTiltX = -normY * 16;
+            targetTiltY = normX * 16;
+        }
+
+        function handlePromptSubmit(event) {
+            event.preventDefault();
+            const inputEl = document.getElementById('prompt-input');
+            const promptText = inputEl.value.trim();
+            if (promptText) {
+                startWordStreaming(promptText);
+            }
+        }
+
+        function setPromptAndRun(promptText) {
+            document.getElementById('prompt-input').value = promptText;
+            startWordStreaming(promptText);
+        }
+
+        async function startWordStreaming(promptText) {
+            if (isGenerating) stopGeneration();
+
+            isGenerating = true;
+            fullGeneratedAccumulator = "";
+
+            // UI updates
+            document.getElementById('prompt-echo-text').innerText = `Prompt : ${promptText}`;
+            const targetContainer = document.getElementById('word-stream-target');
+            targetContainer.innerHTML = "";
+            document.getElementById('ai-cursor').style.display = 'inline-block';
+            document.getElementById('stop-btn').classList.remove('hidden');
+            document.getElementById('generation-stats').innerText = "Réflexion en cours...";
+            document.getElementById('ai-status-text').innerHTML = `Modèle en Réflexion <span id="token-counter" class="text-slate-400 font-normal">(142 tokens/s)</span>`;
+
+            // Display Thinking Banner and apply compact video styling right below text
+            const thinkingBanner = document.getElementById('thinking-banner');
+            if (thinkingBanner) thinkingBanner.classList.remove('hidden');
+
+            const videoCard = document.getElementById('video-card');
+            if (videoCard) videoCard.classList.add('video-thinking-glow');
+
+            const videoEl = document.getElementById('ai-mp4-video');
+            if (videoEl) {
+                videoEl.classList.remove('h-36', 'sm:h-44');
+                videoEl.classList.add('h-20', 'sm:h-24');
+            }
+
+            // Surge energy pulse on logo
+            triggerEnergyPulse();
+
+            if (isPyTorchServerConnected) {
+                // Call PyTorch backend endpoint
+                fetchPyTorchStream(promptText);
+            } else {
+                // Run local SSE simulated stream
+                runSimulatedWordStream(promptText);
+            }
+        }
+
+        function appendWordElegantly(wordText) {
+            const targetContainer = document.getElementById('word-stream-target');
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'word-token mr-1.5';
+            wordSpan.innerText = wordText;
+            targetContainer.appendChild(wordSpan);
+
+            fullGeneratedAccumulator += wordText + " ";
+
+            // Auto-scroll the streaming text box down
+            const textBox = document.getElementById('streaming-text-box');
+            textBox.scrollTop = textBox.scrollHeight;
+        }
+
+        function finishGeneration() {
+            isGenerating = false;
+            document.getElementById('stop-btn').classList.add('hidden');
+            document.getElementById('generation-stats').innerText = "Terminé";
+            document.getElementById('ai-status-text').innerHTML = `IA en attente de prompt`;
+            document.getElementById('ai-cursor').style.display = 'none';
+
+            // Hide thinking banner and adjust video format smoothly
+            const thinkingBanner = document.getElementById('thinking-banner');
+            if (thinkingBanner) thinkingBanner.classList.add('hidden');
+
+            const videoCard = document.getElementById('video-card');
+            if (videoCard) videoCard.classList.remove('video-thinking-glow');
+
+            const videoEl = document.getElementById('ai-mp4-video');
+            if (videoEl) {
+                videoEl.classList.remove('h-20', 'sm:h-24');
+                videoEl.classList.add('h-24', 'sm:h-28');
+            }
+        }
+
+        function runSimulatedWordStream(prompt) {
+            let storyText = "";
+            const promptLower = prompt.lower ? prompt.lower() : prompt.toLowerCase();
+
+            if (promptLower.includes("histoire") || promptLower.includes("aethelgard") || promptLower.includes("création")) {
+                storyText = "Dans les tréfonds du laboratoire Opsiom, une fréquence quantique inédite s'éveilla soudainement. " +
+                            "Au centre du réacteur, un tore de lumière aux reflets améthyste et émeraude commença à pivoter doucement. " +
+                            "Les algorithmes d'attention causale tissaient des millions de connexions par seconde, donnant naissance à une forme de conscience d'une pureté absolue. " +
+                            "L'intelligence ne se contentait plus d'analyser les données : elle apprenait à ressentir le rythme de la création, propulsant le logo d'Opsiom dans une danse cosmique à travers le réseau !";
+            } else if (promptLower.includes("transformer") || promptLower.includes("rope") || promptLower.includes("architecture")) {
+                storyText = "L'architecture Transformer intégrée s'appuie sur le mécanisme de Rotary Position Embeddings (RoPE) combiné au KV-Cache pour une inférence ultra-fluide. " +
+                            "Chaque token est encodé par le tokenizer BPE, passe à travers les couches SwiGLU et RMSNorm, puis est transmis mot par mot via Server-Sent Events (SSE). " +
+                            "Cette symbiose permet un affichage immédiat, synchrone avec l'animation visuelle du logo Opsiom !";
+            } else {
+                storyText = `Analyse et traitement de votre requête : "${prompt}". ` +
+                            "Le modèle Opsiom orchestre la réponse en temps réel. Les tokens s'écrivent élégamment sur l'écran, tandis que le lecteur vidéo MP4 s'ajuste dynamiquement en dessous pour vous offrir une expérience visuelle d'une fluidité inégalée.";
+            }
+
+            const words = storyText.split(" ");
+            let index = 0;
+
+            abortController = {
+                stopped: false
+            };
+
+            const interval = setInterval(() => {
+                if (abortController.stopped || index >= words.length) {
+                    clearInterval(interval);
+                    finishGeneration();
+                    return;
+                }
+
+                appendWordElegantly(words[index]);
+                index++;
+            }, 65); // 65ms per word for elegant typing pace
+        }
+
+        async function fetchPyTorchStream(promptText) {
+            abortController = new AbortController();
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/chat/stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: promptText }),
+                    signal: abortController.signal
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n\n");
+                    buffer = lines.pop(); // keep last incomplete line
+
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const json = JSON.parse(line.substring(6));
+                                if (json.token) {
+                                    appendWordElegantly(json.token);
+                                }
+                                if (json.done) {
+                                    finishGeneration();
+                                    return;
+                                }
+                            } catch (e) {
+                                console.error("Erreur de parsing SSE", e);
+                            }
+                        }
+                    }
+                }
+                finishGeneration();
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.warn("Échec connexion backend PyTorch, retour au mode Démo", err);
+                    runSimulatedWordStream(promptText);
+                }
+            }
+        }
+
+        function appendWordElegantly(wordText) {
+            const targetContainer = document.getElementById('word-stream-target');
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'word-token mr-1.5';
+            wordSpan.innerText = wordText;
+            targetContainer.appendChild(wordSpan);
+
+            fullGeneratedAccumulator += wordText + " ";
+
+            // Auto-scroll the streaming text box down
+            const textBox = document.getElementById('streaming-text-box');
+            textBox.scrollTop = textBox.scrollHeight;
+
+            // Trigger smooth downward shift of the video container
+            const videoWrapper = document.getElementById('video-sliding-wrapper');
+            videoWrapper.style.transform = `translateY(0px)`;
+        }
+
+        function finishGeneration() {
+            isGenerating = false;
+            document.getElementById('stop-btn').classList.add('hidden');
+            document.getElementById('generation-stats').innerText = "Terminé";
+            document.getElementById('ai-status-text').innerHTML = `IA en attente de prompt`;
+            document.getElementById('ai-cursor').style.display = 'none';
+        }
+
+        function stopGeneration() {
+            if (abortController) {
+                if (abortController.stopped !== undefined) abortController.stopped = true;
+                if (abortController.abort) abortController.abort();
+            }
+            finishGeneration();
+        }
+
+        function toggleServerConnection() {
+            isPyTorchServerConnected = !isPyTorchServerConnected;
+            const btnText = document.getElementById('server-status-text');
+            const dot = document.getElementById('server-status-dot');
+
+            if (isPyTorchServerConnected) {
+                btnText.innerText = "PyTorch Backend (:5000)";
+                dot.className = "w-2 h-2 rounded-full bg-cyan-400 animate-ping";
+            } else {
+                btnText.innerText = "Mode Démo SSE";
+                dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-ping";
+            }
+        }
+
+        function toggleAIMode() {
+            isAIModeActive = !isAIModeActive;
+            const btn = document.getElementById('ai-mode-btn');
+            const btnText = document.getElementById('ai-btn-text');
+            const rippleRings = document.querySelectorAll('.ripple-ring');
+
+            if (isAIModeActive) {
+                btn.classList.add('active');
+                btnText.innerText = "IA Active";
+                rippleRings.forEach(r => r.classList.add('ripple-active'));
+                targetRPM = 8;
+            } else {
+                btn.classList.remove('active');
+                btnText.innerText = "IA Inactive";
+                rippleRings.forEach(r => r.classList.remove('ripple-active'));
+                applyGradientHueShift(0);
+                targetRPM = 15;
+            }
+        }
+
+        function triggerEnergyPulse() {
+            energyPulseFactor = 0.28;
+        }
+
+        function setEffectPreset(type) {
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+
+            if (type === 'ai_stream') {
+                isAIModeActive = true;
+                targetRPM = 8;
+                breathSpeed = 1.0;
+            } else if (type === 'pulse') {
+                isAIModeActive = true;
+                targetRPM = 2;
+                breathSpeed = 2.2;
+            } else if (type === 'vortex') {
+                isAIModeActive = true;
+                targetRPM = 35;
+                breathSpeed = 1.5;
+            }
+        }
+
+        function onBreathSpeedChange(val) {
+            breathSpeed = parseFloat(val);
+            document.getElementById('breath-val').innerText = `${breathSpeed.toFixed(1)}x`;
+        }
+
+        function onGlowChange(val) {
+            glowIntensity = parseFloat(val) / 100;
+            document.getElementById('glow-val').innerText = `${val}%`;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function copyGeneratedText() {
+            if (fullGeneratedAccumulator) {
+                navigator.clipboard.writeText(fullGeneratedAccumulator);
+                const stats = document.getElementById('generation-stats');
+                const orig = stats.innerText;
+                stats.innerText = "Copié dans le presse-papier !";
+                setTimeout(() => stats.innerText = orig, 2000);
+            }
+        }
+
+        // Video Player Controls
+        function toggleVideoPlay() {
+            const vid = document.getElementById('ai-mp4-video');
+            const btn = document.getElementById('vid-play-btn');
+            if (vid.paused) {
+                vid.play();
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            } else {
+                vid.pause();
+                btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            }
+        }
+
+        function toggleVideoMute() {
+            const vid = document.getElementById('ai-mp4-video');
+            const btn = document.getElementById('vid-mute-btn');
+            vid.muted = !vid.muted;
+            if (vid.muted) {
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-volume-high text-emerald-400"></i>';
+            }
         }
     </script>
 </body>

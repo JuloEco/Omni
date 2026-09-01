@@ -52,7 +52,7 @@ SERVICES = [
     {
         "name": "Intrigues & Couronnes",
         "category": "jeux",
-        "url": "https://intrigues-et-couronnes.onrender.com",
+        "url": "https://intrigues-et-couronnesv2-yvb0.onrender.com",
         "description": "Jeu de stratégie politique et de bluff à la Cour.",
         "icon": "👑",
         "supports_qr": True,
@@ -100,7 +100,7 @@ SERVICES = [
         "url": "https://trading-tfxt.onrender.com",
         "description": "Simulation et jeu de marchés financiers.",
         "icon": "📈",
-        "supports_qr": False,
+        "supports_qr": True,
         "auto_wake": False
     },
 
@@ -108,10 +108,10 @@ SERVICES = [
     {
         "name": "LearnCode",
         "category": "education",
-        "url": "https://learncode-n2qy.onrender.com",
+        "url": "https://learncode-io6e.onrender.com",
         "description": "Plateforme interactive d'apprentissage de la programmation.",
         "icon": "💻",
-        "supports_qr": False,
+        "supports_qr": True,
         "auto_wake": False
     },
     {
@@ -120,8 +120,8 @@ SERVICES = [
         "url": "https://classroom-ejxx.onrender.com",
         "description": "Gestionnaire d'espace de cours et de classe.",
         "icon": "📚",
-        "supports_qr": False,
-        "auto_wake": True
+        "supports_qr": True,
+        "auto_wake": False
     },
 
     # --- UTILITAIRES & PRODUCTIVITÉ ---
@@ -140,7 +140,7 @@ SERVICES = [
         "url": "https://chatting-u91z.onrender.com",
         "description": "Messagerie instantanée et salon de discussion.",
         "icon": "💬",
-        "supports_qr": False,
+        "supports_qr": True,
         "auto_wake": False
     }
 ]

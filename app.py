@@ -68,6 +68,15 @@ SERVICES = [
         "auto_wake": True
     },
     {
+        "name":"Entreprise simulation",
+        "category": "jeux",
+        "url":"https://entreprise-mu-eight.vercel.app/",
+        "description": "Une simulation d'entreprise de haute qualité"
+        "icon": "🏢"
+        "suports_qr": True
+        "auto_wake": False
+    }
+    {
         "name": "Undercover Dessin",
         "category": "jeux",
         "url": "https://undercover-dessin.onrender.com",

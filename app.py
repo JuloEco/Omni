@@ -152,6 +152,15 @@ SERVICES = [
         "supports_qr": True,
         "auto_wake": False
     }
+        {
+        "name": "Opsiom-ASCII",
+        "category": "IA",
+        "url": "https://juloeco.github.io/ASCII-generator/",
+        "description": "Convertisseur d'images et de texte en caractères ASCII",
+        "icon": "📄",
+        "supports_qr": True,
+        "auto_wake": False
+    },
 ]
 
 @app.route('/')

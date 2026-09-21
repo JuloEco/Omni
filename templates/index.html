@@ -3,644 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#090d18">
     <title>{{ config.brand_name }} — {{ config.hub_name }}</title>
-    <style>
-        :root {
-            --bg-dark: #0b0d12;
-            --card-bg: #131722;
-            --card-border: #232a3b;
-            --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.25);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --status-online: #10b981;
-            --status-waking: #f59e0b;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
-
-        /* --- ANIMATION INTRO STYLÉE --- */
-        #intro-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #07080b;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: opacity 0.8s ease, visibility 0.8s;
-        }
-
-        .intro-visual {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            margin-bottom: 2.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .intro-glow {
-            position: absolute;
-            width: 340px;
-            height: 340px;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-            filter: blur(10px);
-            animation: glowPulse 6s ease-in-out infinite;
-            z-index: -1;
-        }
-
-        .logo-sequence {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            animation: floatGentle 6s ease-in-out infinite;
-        }
-
-        .seq-logo {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            opacity: 0;
-            filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.5));
-            animation-duration: 4.8s;
-            animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            animation-fill-mode: forwards;
-        }
-
-        .seq-1 { animation-name: seqFade1; }
-        .seq-2 { animation-name: seqFade2; }
-        .seq-3 { animation-name: seqFade3; }
-        .seq-4 { animation-name: seqFade4; }
-
-        @keyframes seqFade1 {
-            0% { opacity: 0; transform: scale(0.9) rotate(-4deg); }
-            6% { opacity: 1; transform: scale(1) rotate(0deg); }
-            22% { opacity: 1; transform: scale(1) rotate(0deg); }
-            28% { opacity: 0; transform: scale(1.06) rotate(3deg); }
-            100% { opacity: 0; }
-        }
-        @keyframes seqFade2 {
-            0%, 25% { opacity: 0; transform: scale(0.9) rotate(-4deg); }
-            31% { opacity: 1; transform: scale(1) rotate(0deg); }
-            47% { opacity: 1; transform: scale(1) rotate(0deg); }
-            53% { opacity: 0; transform: scale(1.06) rotate(3deg); }
-            100% { opacity: 0; }
-        }
-        @keyframes seqFade3 {
-            0%, 50% { opacity: 0; transform: scale(0.9) rotate(-4deg); }
-            56% { opacity: 1; transform: scale(1) rotate(0deg); }
-            72% { opacity: 1; transform: scale(1) rotate(0deg); }
-            78% { opacity: 0; transform: scale(1.06) rotate(3deg); }
-            100% { opacity: 0; }
-        }
-        @keyframes seqFade4 {
-            0%, 75% { opacity: 0; transform: scale(0.9) rotate(-4deg); }
-            81% { opacity: 1; transform: scale(1) rotate(0deg); }
-            100% { opacity: 1; transform: scale(1) rotate(0deg); }
-        }
-
-        @keyframes glowPulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 0.9; transform: scale(1.15); }
-        }
-        @keyframes floatGentle {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        .intro-text {
-            font-size: 1.2rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            opacity: 0;
-            animation: fadeIn 1s 3.4s forwards;
-        }
-
-        .intro-brand {
-            font-size: 2.8rem;
-            font-weight: 900;
-            letter-spacing: 6px;
-            background: linear-gradient(135deg, #ffffff 0%, #818cf8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0;
-            animation: fadeIn 1s 4s forwards;
-        }
-
-        @keyframes fadeIn { to { opacity: 1; } }
-
-        /* --- SECTION "NOS UNIVERS" --- */
-        .universes {
-            padding: 2.5rem 0 0.5rem;
-        }
-
-        .universes-head {
-            max-width: 640px;
-            margin-bottom: 2rem;
-        }
-
-        .universes-head h2 {
-            font-size: 1.6rem;
-            font-weight: 800;
-            margin-bottom: 0.6rem;
-            color: #fff;
-        }
-
-        .universes-head p {
-            color: var(--text-muted);
-            font-size: 0.98rem;
-            line-height: 1.6;
-        }
-
-        .universes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .universe-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 1.6rem 1.4rem;
-            text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .universe-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--u-color);
-            box-shadow: 0 14px 28px -14px var(--u-color);
-        }
-
-        .universe-card img {
-            width: 64px;
-            height: 64px;
-            object-fit: contain;
-            margin-bottom: 1rem;
-        }
-
-        .universe-name {
-            font-weight: 800;
-            font-size: 1.1rem;
-            color: #fff;
-            margin-bottom: 0.2rem;
-        }
-
-        .universe-role {
-            font-size: 0.78rem;
-            color: var(--u-color);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-            margin-bottom: 0.7rem;
-        }
-
-        .universe-desc {
-            font-size: 0.88rem;
-            color: var(--text-muted);
-            line-height: 1.55;
-        }
-
-        /* --- LAYOUT OPTIMISÉ POUR ORDI (DESKTOP) --- */
-        .container {
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        header {
-            padding: 2.5rem 0;
-            border-bottom: 1px solid var(--card-border);
-            background: rgba(19, 23, 34, 0.4);
-            backdrop-filter: blur(12px);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-
-        .brand h1 {
-            font-size: 2.2rem;
-            letter-spacing: 3px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .brand p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-top: 4px;
-        }
-
-        nav {
-            display: flex;
-            gap: 12px;
-            background: var(--card-bg);
-            padding: 6px;
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-        }
-
-        .filter-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-
-        .filter-btn:hover, .filter-btn.active {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 4px 12px var(--accent-glow);
-        }
-
-        main {
-            padding: 3rem 0;
-            flex: 1;
-        }
-
-        /* Grille adaptable grand écran */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 2rem;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 1.8rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card:hover {
-            transform: translateY(-6px);
-            border-color: var(--accent);
-            box-shadow: 0 12px 24px -10px var(--accent-glow);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.2rem;
-        }
-
-        .icon {
-            font-size: 2.4rem;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 12px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .status-badge {
-            font-size: 0.8rem;
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-        }
-
-        .status-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--status-waking);
-            box-shadow: 0 0 8px var(--status-waking);
-        }
-
-        .status-badge.online .status-dot {
-            background: var(--status-online);
-            box-shadow: 0 0 8px var(--status-online);
-        }
-        .status-badge.online { color: var(--status-online); }
-
-        .card-title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            margin-bottom: 0.6rem;
-            color: #fff;
-        }
-
-        .card-desc {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 2rem;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 4px 14px var(--accent-glow);
-        }
-
-        .btn-primary:hover {
-            background: #4f46e5;
-            transform: scale(1.02);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-main);
-            border: 1px solid var(--card-border);
-            width: 48px;
-            flex: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.2rem;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Modale QR Code */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(6px);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: 20px;
-            text-align: center;
-            border: 1px solid var(--card-border);
-            max-width: 360px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-
-        .modal-content img {
-            margin: 1.5rem auto;
-            border-radius: 12px;
-            padding: 10px;
-            background: white;
-        }
-
-        .close-btn {
-            margin-top: 1rem;
-            background: transparent;
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --bg:#090d18; --surface:#111827; --surface-2:#172033; --line:#26334b; --text:#f8fafc; --muted:#94a3b8; --accent:#818cf8; --accent-2:#22d3ee; --green:#34d399; --amber:#fbbf24; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { min-height:100vh; color:var(--text); background:radial-gradient(circle at 85% -10%,#26345d 0,transparent 35%),var(--bg); font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif; }
+        header { position:sticky; top:0; z-index:10; border-bottom:1px solid rgba(148,163,184,.16); background:rgba(9,13,24,.82); backdrop-filter:blur(18px); }
+        .container { width:min(1400px,100%); margin:auto; padding:0 2rem; }
+        .header-content { min-height:92px; display:flex; align-items:center; justify-content:space-between; gap:2rem; }
+        .brand { display:flex; align-items:center; gap:14px; }
+        .brand-mark { width:42px; height:42px; display:grid; place-items:center; border:1px solid #4f46e5; border-radius:13px; color:#c4b5fd; background:linear-gradient(135deg,#312e81,#0e7490); box-shadow:0 8px 28px #4338ca55; }
+        .brand h1 { font-size:1.55rem; letter-spacing:2px; font-weight:800; }
+        .brand p { color:var(--muted); font-size:.78rem; margin-top:3px; }
+        nav { display:flex; gap:5px; padding:5px; overflow:auto; border:1px solid var(--line); border-radius:14px; background:#111827cc; }
+        .filter-btn { display:inline-flex; align-items:center; gap:8px; white-space:nowrap; border:0; border-radius:9px; padding:10px 14px; color:var(--muted); background:transparent; font-weight:650; cursor:pointer; transition:.2s; }
+        .filter-btn:hover,.filter-btn.active { color:white; background:linear-gradient(135deg,#6366f1,#4f46e5); box-shadow:0 5px 15px #4f46e555; }
+        main { padding:3.5rem 0 5rem; }
+        .hero { display:flex; justify-content:space-between; align-items:end; gap:2rem; margin-bottom:2.5rem; }
+        .eyebrow { display:flex; align-items:center; gap:8px; color:#a5b4fc; font-size:.76rem; font-weight:800; letter-spacing:1.8px; text-transform:uppercase; margin-bottom:12px; }
+        .hero h2 { max-width:700px; font-size:clamp(2rem,4vw,3.45rem); line-height:1.08; letter-spacing:-1.8px; }
+        .hero p { max-width:590px; color:var(--muted); line-height:1.65; margin-top:14px; }
+        .hero-stat { display:flex; align-items:center; gap:10px; padding:13px 16px; color:var(--muted); white-space:nowrap; border:1px solid var(--line); border-radius:12px; background:#111827aa; font-size:.85rem; }
+        .live-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 12px var(--green); }
+        .universes { margin-bottom:3rem; }
+        .section-heading { display:flex; align-items:center; gap:10px; margin-bottom:1.25rem; }
+        .section-heading h3 { font-size:1.2rem; }
+        .section-heading i { color:var(--accent-2); }
+        .universes-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+        .universe-card,.card { border:1px solid var(--line); background:linear-gradient(145deg,#151e31e8,#101624e8); box-shadow:0 14px 35px #00000018; }
+        .universe-card { padding:1.25rem; border-radius:17px; transition:.25s; }
+        .universe-card:hover { transform:translateY(-4px); border-color:var(--u-color); box-shadow:0 14px 30px -14px var(--u-color); }
+        .universe-card img { width:46px; height:46px; object-fit:contain; margin-bottom:1rem; }
+        .universe-name { font-weight:800; font-size:1.05rem; }
+        .universe-role { color:var(--u-color); font-size:.7rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; margin:5px 0 9px; }
+        .universe-desc { color:var(--muted); font-size:.84rem; line-height:1.5; }
+        .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.15rem; }
+        .card { display:flex; flex-direction:column; justify-content:space-between; min-height:260px; padding:1.35rem; border-radius:17px; transition:.25s; }
+        .card:hover { transform:translateY(-5px); border-color:#6366f1; box-shadow:0 18px 35px #4f46e533; }
+        .card-header { display:flex; justify-content:space-between; align-items:start; margin-bottom:1.4rem; }
+        .icon { width:48px; height:48px; display:grid; place-items:center; color:#c4b5fd; border:1px solid #6366f144; border-radius:13px; background:#6366f118; }
+        .icon svg { width:23px; height:23px; }
+        .status-badge { display:flex; align-items:center; gap:7px; padding:6px 9px; color:var(--muted); border:1px solid var(--line); border-radius:99px; font-size:.69rem; cursor:pointer; }
+        .status-dot { width:7px; height:7px; border-radius:50%; background:var(--amber); box-shadow:0 0 7px var(--amber); }
+        .status-badge.online { color:var(--green); }.status-badge.online .status-dot { background:var(--green); box-shadow:0 0 8px var(--green); }
+        .card-title { font-size:1.15rem; font-weight:750; margin-bottom:8px; }.card-desc { color:var(--muted); line-height:1.55; font-size:.88rem; }
+        .card-actions { display:flex; gap:9px; margin-top:1.5rem; }.btn { display:inline-flex; justify-content:center; align-items:center; gap:8px; padding:11px 13px; border-radius:10px; text-decoration:none; font-size:.84rem; font-weight:700; cursor:pointer; transition:.2s; }.btn-primary { flex:1; color:white; background:linear-gradient(135deg,#6366f1,#4f46e5); box-shadow:0 6px 16px #4f46e544; }.btn-primary:hover { filter:brightness(1.13); transform:translateY(-1px); }.btn-secondary { color:var(--muted); border:1px solid var(--line); background:#ffffff08; }.btn-secondary:hover { color:white; background:#ffffff14; }
+        .modal { display:none; position:fixed; inset:0; z-index:30; place-items:center; padding:1rem; background:#020617dd; backdrop-filter:blur(8px); }.modal-content { width:min(360px,100%); padding:2rem; text-align:center; border:1px solid var(--line); border-radius:20px; background:var(--surface); box-shadow:0 25px 70px #0008; }.modal-content h3 { margin-bottom:1rem; }.modal-content img { margin:1rem auto; padding:10px; border-radius:10px; background:white; }.close-btn { margin-top:1rem; padding:9px 18px; color:var(--muted); border:1px solid var(--line); border-radius:9px; background:transparent; cursor:pointer; }
+        @media (max-width:800px) { .header-content,.hero { align-items:flex-start; flex-direction:column; }.header-content { padding-top:1rem; padding-bottom:1rem; }.container { padding-left:1rem; padding-right:1rem; } nav { width:100%; }.filter-btn { flex:1; justify-content:center; padding:9px 8px; }.universes-grid { grid-template-columns:repeat(2,1fr); }.hero-stat { align-self:stretch; }.grid { grid-template-columns:1fr; } }
+        @media (max-width:480px) { .universes-grid { grid-template-columns:1fr; } .brand h1 { font-size:1.25rem; } }
+    </style>
 </head>
 <body>
-
-    <!-- Intro : révélation séquencée des quatre univers -->
-    <div id="intro-overlay" onclick="dismissIntro()">
-        <div class="intro-visual">
-            <div class="intro-glow"></div>
-            <div class="logo-sequence">
-                {% for u in intro_universes %}
-                <img src="{{ url_for('static', filename='logos/' ~ u.logo) }}" class="seq-logo seq-{{ loop.index }}" alt="{{ u.name }}">
-                {% endfor %}
-            </div>
-        </div>
-        <div class="intro-text">{{ config.brand_name }} présente</div>
-        <div class="intro-brand">{{ config.hub_name }}</div>
-    </div>
-
-    <!-- Interface Principale -->
-    <header>
-        <div class="container header-content">
-            <div class="brand">
-                <h1>{{ config.brand_name }} <span style="color:var(--accent)">/</span> {{ config.hub_name }}</h1>
-                <p>{{ config.tagline }}</p>
-            </div>
-            <nav>
-                <button class="filter-btn active" onclick="filterCategory('all')">Tous</button>
-                <button class="filter-btn" onclick="filterCategory('jeux')">Jeux</button>
-                <button class="filter-btn" onclick="filterCategory('education')">Éducation</button>
-                <button class="filter-btn" onclick="filterCategory('outils')">Utilitaires</button>
-            </nav>
-        </div>
-    </header>
-
-    <main class="container">
-        <section class="universes">
-            <div class="universes-head">
-                <h2>Nos univers</h2>
-                <p>Octix n'édite pas un service parmi d'autres : c'est la plateforme qui les réunit. Chaque univers ci-dessous regroupe une partie des services listés plus bas — Axiom pour les jeux, Omnia pour les outils, Opsiom pour l'apprentissage.</p>
-            </div>
-            <div class="universes-grid">
-                {% for u in universes %}
-                <div class="universe-card" style="--u-color: {{ u.color }};">
-                    <img src="{{ url_for('static', filename='logos/' ~ u.logo) }}" alt="{{ u.name }}">
-                    <div class="universe-name">{{ u.name }}</div>
-                    <div class="universe-role">{{ u.role }}</div>
-                    <div class="universe-desc">{{ u.description }}</div>
-                </div>
-                {% endfor %}
-            </div>
-        </section>
-
-        <div class="grid">
-            {% for item in services %}
-            <div class="card" data-category="{{ item.category }}">
-                <div>
-                    <div class="card-header">
-                        <div class="icon">{{ item.icon }}</div>
-                        <div class="status-badge" id="status-{{ loop.index }}">
-                            <div class="status-dot"></div>
-                            <span class="status-text">Réveil en cours...</span>
-                        </div>
-                    </div>
-                    <div class="card-title">{{ item.name }}</div>
-                    <div class="card-desc">{{ item.description }}</div>
-                </div>
-                <div class="card-actions">
-                    <a href="{{ item.url }}" target="_blank" class="btn btn-primary">Lancer / Ouvrir</a>
-                    {% if item.supports_qr %}
-                    <button class="btn btn-secondary" onclick="showQR('{{ item.url }}', '{{ item.name }}')" title="Rejoindre sur Mobile">📲</button>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </main>
-
-    <!-- Modal QR Code -->
-    <div id="qrModal" class="modal">
-        <div class="modal-content">
-            <h3 id="modalTitle" style="color:#fff">Scanner pour jouer</h3>
-            <div id="qrcode"></div>
-            <button class="close-btn" onclick="closeQR()">Fermer</button>
-        </div>
-    </div>
-
-    <script>
-        // --- 1. Masquer l'intro automatiquement après 2.5s ---
-        function dismissIntro() {
-            const overlay = document.getElementById('intro-overlay');
-            if (overlay) {
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.style.visibility = 'hidden', 800);
-            }
-        }
-        setTimeout(dismissIntro, 5300);
-
-        // --- 2. Filtres par catégorie ---
-        function filterCategory(cat) {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            document.querySelectorAll('.card').forEach(card => {
-                if (cat === 'all' || card.dataset.category === cat) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        // --- 3. Script Ping / Keep-Alive (économe en quota) ---
-        const services = {{ services | tojson }};
-
-        // On ne re-pingue pas un service réveillé il y a moins de 15 min,
-        // même si la page est rechargée entre-temps (persiste par navigateur).
-        const THROTTLE_MS = 15 * 60 * 1000;
-
-        function getLastPing(url) {
-            return parseInt(localStorage.getItem('ping_' + url) || '0', 10);
-        }
-        function setLastPing(url) {
-            localStorage.setItem('ping_' + url, Date.now().toString());
-        }
-
-        function pingOne(service, badge) {
-            const text = badge.querySelector('.status-text');
-            text.innerText = 'Réveil en cours...';
-            // Utilisation de fetch mode 'no-cors' pour envoyer une requête HTTP
-            // qui sort l'instance de veille sur Render & Hugging Face Spaces
-            fetch(service.url, { mode: 'no-cors', cache: 'no-cache' })
-                .then(() => {
-                    badge.classList.add('online');
-                    text.innerText = 'En ligne';
-                    setLastPing(service.url);
-                })
-                .catch(() => {
-                    text.innerText = 'Hors ligne';
-                });
-        }
-
-        function initStatus() {
-            services.forEach((service, index) => {
-                const badge = document.getElementById(`status-${index + 1}`);
-                if (!badge) return;
-                const text = badge.querySelector('.status-text');
-
-                if (service.auto_wake) {
-                    // Réveil auto, mais seulement si on ne l'a pas déjà fait récemment
-                    const last = getLastPing(service.url);
-                    if (Date.now() - last > THROTTLE_MS) {
-                        pingOne(service, badge);
-                    } else {
-                        badge.classList.add('online');
-                        text.innerText = 'En ligne (récent)';
-                    }
-                } else {
-                    // Pas de réveil auto : on laisse l'utilisateur décider
-                    text.innerText = 'Cliquer pour vérifier';
-                    badge.style.cursor = 'pointer';
-                    badge.title = 'Cliquer pour réveiller ce service';
-                    badge.addEventListener('click', () => pingOne(service, badge));
-                }
-            });
-        }
-
-        // Exécution au chargement, une seule fois : pas de setInterval qui
-        // relancerait des réveils en boucle tant que l'onglet reste ouvert.
-        initStatus();
-
-        // --- 4. Gestion QR Code ---
-        let qrContainer = new QRCode(document.getElementById("qrcode"), { width: 200, height: 200 });
-
-        function showQR(url, title) {
-            document.getElementById("modalTitle").innerText = title;
-            qrContainer.clear();
-            qrContainer.makeCode(url);
-            document.getElementById("qrModal").style.display = "flex";
-        }
-
-        function closeQR() {
-            document.getElementById("qrModal").style.display = "none";
-        }
-    </script>
+<header><div class="container header-content"><div class="brand"><div class="brand-mark"><i data-lucide="orbit"></i></div><div><h1>{{ config.brand_name }} <span style="color:var(--accent)">/</span> {{ config.hub_name }}</h1><p>{{ config.tagline }}</p></div></div><nav aria-label="Filtrer les services"><button class="filter-btn active" onclick="filterCategory('all', this)"><i data-lucide="layout-grid"></i>Tous</button><button class="filter-btn" onclick="filterCategory('jeux', this)"><i data-lucide="gamepad-2"></i>Jeux</button><button class="filter-btn" onclick="filterCategory('education', this)"><i data-lucide="graduation-cap"></i>Éducation</button><button class="filter-btn" onclick="filterCategory('outils', this)"><i data-lucide="wrench"></i>Utilitaires</button><button class="filter-btn" onclick="filterCategory('IA', this)"><i data-lucide="sparkles"></i>IA</button></nav></div></header>
+<main class="container"><section class="hero"><div><div class="eyebrow"><i data-lucide="layers"></i>Un espace, tous vos services</div><h2>Votre écosystème numérique, enfin réuni.</h2><p>Explorez les expériences Octix et accédez rapidement à vos jeux, outils, espaces d’apprentissage et innovations en intelligence artificielle.</p></div><div class="hero-stat"><span class="live-dot"></span>{{ services|length }} services disponibles</div></section>
+<section class="universes"><div class="section-heading"><i data-lucide="sparkle"></i><h3>Nos univers</h3></div><div class="universes-grid">{% for u in universes %}<div class="universe-card" style="--u-color:{{ u.color }}"><img src="{{ url_for('static', filename='logos/' ~ u.logo) }}" alt="{{ u.name }}"><div class="universe-name">{{ u.name }}</div><div class="universe-role">{{ u.role }}</div><div class="universe-desc">{{ u.description }}</div></div>{% endfor %}</div></section>
+<section><div class="section-heading"><i data-lucide="command"></i><h3>Catalogue des services</h3></div><div class="grid">{% for item in services %}<article class="card" data-category="{{ item.category }}"><div><div class="card-header"><div class="icon"><i data-lucide="{{ item.icon }}"></i></div><div class="status-badge" id="status-{{ loop.index }}"><span class="status-dot"></span><span class="status-text">Vérification...</span></div></div><div class="card-title">{{ item.name }}</div><div class="card-desc">{{ item.description }}</div></div><div class="card-actions"><a href="{{ item.url }}" target="_blank" rel="noopener" class="btn btn-primary">Ouvrir <i data-lucide="arrow-up-right"></i></a>{% if item.supports_qr %}<button class="btn btn-secondary" onclick="showQR({{ item.url|tojson }}, {{ item.name|tojson }})" title="Afficher le QR code"><i data-lucide="qr-code"></i></button>{% endif %}</div></article>{% endfor %}</div></section></main>
+<div id="qrModal" class="modal" role="dialog" aria-modal="true"><div class="modal-content"><h3 id="modalTitle">Accéder au service</h3><div id="qrcode"></div><button class="close-btn" onclick="closeQR()">Fermer</button></div></div>
+<script>
+    lucide.createIcons();
+    const services={{ services|tojson }}; const THROTTLE_MS=15*60*1000;
+    function filterCategory(category, button){ document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); button.classList.add('active'); document.querySelectorAll('.card').forEach(card=>{card.style.display=category==='all'||card.dataset.category===category?'flex':'none';}); }
+    function pingOne(service,badge){ const text=badge.querySelector('.status-text'); text.textContent='Vérification...'; fetch(service.url,{mode:'no-cors',cache:'no-cache'}).then(()=>{badge.classList.add('online');text.textContent='En ligne';localStorage.setItem('ping_'+service.url,Date.now());}).catch(()=>text.textContent='Hors ligne'); }
+    services.forEach((service,index)=>{ const badge=document.getElementById('status-'+(index+1)); if(!badge)return; const text=badge.querySelector('.status-text'); const last=Number(localStorage.getItem('ping_'+service.url)||0); if(service.auto_wake&&Date.now()-last>THROTTLE_MS) pingOne(service,badge); else if(service.auto_wake){badge.classList.add('online');text.textContent='En ligne récemment';} else {text.textContent='Vérifier';badge.addEventListener('click',()=>pingOne(service,badge));} });
+    const qrContainer=new QRCode(document.getElementById('qrcode'),{width:200,height:200}); function showQR(url,title){document.getElementById('modalTitle').textContent=title;qrContainer.clear();qrContainer.makeCode(url);document.getElementById('qrModal').style.display='grid';} function closeQR(){document.getElementById('qrModal').style.display='none';} document.getElementById('qrModal').addEventListener('click',e=>{if(e.target.id==='qrModal')closeQR();});
+</script>
 </body>
 </html>

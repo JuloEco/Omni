@@ -161,6 +161,15 @@ SERVICES = [
         "supports_qr": True,
         "auto_wake": False
     },
+    {
+                "name": "Opsiom-AI",
+        "category": "IA",
+        "url": "https://opsiom-frontend.onrender.com/",
+        "description": "Assistant IA",
+        "icon": "🤖",
+        "supports_qr": True,
+        "auto_wake": False
+    },
 ]
 
 @app.route('/')

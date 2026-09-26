@@ -57,6 +57,7 @@ SERVICES = [
     {"name": "Chatting App", "category": "outils", "url": "https://chatting-u91z.onrender.com", "description": "Messagerie instantanée et salon de discussion.", "icon": "message-circle", "supports_qr": True, "auto_wake": False},
     {"name": "Opsiom — ASCII", "category": "IA", "url": "https://juloeco.github.io/ASCII-generator/", "description": "Convertisseur d’images et de texte en caractères ASCII.", "icon": "scan-text", "supports_qr": True, "auto_wake": False},
     {"name": "Opsiom — AI", "category": "IA", "url": "https://opsiom-frontend.onrender.com/", "description": "Assistant IA pour explorer, créer et réfléchir autrement.", "icon": "sparkles", "supports_qr": True, "auto_wake": False},
+    {"name": "Omnia Mind", "category": "education", "url": "https://omnia-mind.vercel.app", "description": "Apprendre en s'amusant", "icon": "brain", "supports_qr": True, "auto_wake": False},
 ]
 
 @app.route('/')
